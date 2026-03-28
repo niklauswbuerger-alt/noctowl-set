@@ -1,25 +1,16 @@
 {
   "name": "Noctowl Master Set",
   "short_name": "Noctowl Set",
-  "description": "Track your Noctowl Pokemon TCG master set collection",
+  "description": "Complete Noctowl Pokemon TCG master set tracker with pricing and population data",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f5f5f0",
-  "theme_color": "#2d2d5e",
-  "orientation": "portrait",
+  "background_color": "#0d0d1a",
+  "theme_color": "#0d0d1a",
+  "orientation": "portrait-primary",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
-  "categories": ["games", "utilities"]
+  "categories": ["games", "utilities"],
+  "screenshots": []
 }
