@@ -1,5 +1,9 @@
 const CACHE = 'noctowl-v3';
-const CORE = ['/', '/index.html', '/manifest.json'];
+const CORE = [
+  '/noctowl-set/',
+  '/noctowl-set/index.html',
+  '/noctowl-set/manifest.json'
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)));
