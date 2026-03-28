@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Noctowl Set">
+<meta name="theme-color" content="#1a1a2e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>🦉 Noctowl Master Set</title>
+<style>
+  :root {
+    --bg: #f5f5f0;
+    --surface: #ffffff;
+    --border: #e8e8e0;
+    --text: #1a1a1a;
+    --text2: #666;
+    --text3: #aaa;
+    --green: #1D9E75;
+    --green-bg: #f0faf6;
+    --blue: #1a6dc0;
+    --blue-bg: #f0f7ff;
+    --amber: #b35c00;
+    --amber-bg: #fff8ec;
+    --accent: #2d2d5e;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); overscroll-behavior: none; }
+
+  /* HEADER */
+  .app-header {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--accent);
+    color: white;
+    padding: env(safe-area-inset-top) 0 0;
+  }
+  .header-inner { padding: 14px 16px 12px; }
+  .header-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .header-sub { font-size: 12px; opacity: 0.7; margin-top: 1px; }
+  .progress-wrap { padding: 0 16px 12px; }
+  .progress-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.2); border-radius: 3px; }
+  .progress-fill { height: 100%; background: #4ade80; border-radius: 3px; transition: width 0.4s ease; }
+  .header-stats { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .stats-text { font-size: 12px; opacity: 0.85; }
+  .pct-badge { font-size: 12px; font-weight: 700; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 20px; }
+
+  /* FILTER TABS */
+  .filter-tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    border: none;
+    background: none;
+    border-bottom: 2.5px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* SEARCH */
+  .search-wrap { padding: 10px 12px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .search-input {
+    width: 100%; padding: 8px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    font-size: 14px; color: var(--text); outline: none;
+  }
+  .search-input:focus { border-color: var(--accent); }
+
+  /* SECTION HEADERS */
+  .section-label {
+    padding: 10px 16px 6px;
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--text3);
+  }
+
+  /* CARD ROWS */
+  .card-list { padding: 0 12px 100px; }
+  .card-row {
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 7px;
+    cursor: pointer;
+    transition: background 0.12s, opacity 0.12s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .card-row:active { background: #f0f0e8; transform: scale(0.99); }
+  .card-row.collected { background: var(--green-bg); border-color: #b8e8d4; opacity: 0.75; }
+  .card-row.collected .card-name { text-decoration: line-through; color: var(--text3); }
+
+  /* CARD IMAGE */
+  .card-img-wrap {
+    width: 52px; height: 72px; flex-shrink: 0;
+    border-radius: 5px; overflow: hidden;
+    border: 1px solid var(--border);
+    background: #f0f0e8;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card-no-img { font-size: 26px; }
+
+  /* CARD INFO */
+  .card-info { flex: 1; min-width: 0; }
+  .card-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+  .card-set { font-size: 12px; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-num { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .card-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  .badge-rare { font-size: 10px; background: #fff3cd; color: #856404; padding: 1px 6px; border-radius: 8px; border: 1px solid #ffc107; }
+  .badge-lang { font-size: 10px; background: #e8f4fd; color: #1a6dc0; padding: 1px 6px; border-radius: 8px; }
+
+  /* LINKS */
+  .card-links { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+  .card-link {
+    font-size: 11px; font-weight: 500; text-decoration: none;
+    padding: 4px 8px; border-radius: 6px; white-space: nowrap; text-align: center;
+  }
+  .link-tcg { color: var(--blue); background: var(--blue-bg); border: 1px solid #c8ddf5; }
+  .link-ebay { color: var(--amber); background: var(--amber-bg); border: 1px solid #f5ddb0; }
+
+  /* CHECKBOX */
+  .check-circle {
+    width: 26px; height: 26px; flex-shrink: 0;
+    border-radius: 50%; border: 2px solid #ccc;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .card-row.collected .check-circle { background: var(--green); border-color: var(--green); }
+  .check-icon { display: none; color: white; font-size: 14px; font-weight: 700; }
+  .card-row.collected .check-icon { display: block; }
+
+  /* BOTTOM BAR */
+  .bottom-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 10px 16px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    display: flex; gap: 8px;
+  }
+  .bottom-btn {
+    flex: 1; padding: 10px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);
+  }
+  .bottom-btn.danger { color: #c0392b; border-color: #f5c6c6; background: #fff5f5; }
+  .bottom-btn:active { opacity: 0.7; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 60px 24px; color: var(--text2); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-text { font-size: 15px; font-weight: 500; }
+  .empty-sub { font-size: 13px; margin-top: 6px; color: var(--text3); }
+
+  /* INSTALL BANNER */
+  .install-banner {
+    margin: 10px 12px 0;
+    background: #2d2d5e; color: white;
+    border-radius: 10px; padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px;
+  }
+  .install-banner .install-icon { font-size: 22px; flex-shrink: 0; }
+  .install-banner .install-text { flex: 1; line-height: 1.4; }
+  .install-banner .install-close { opacity: 0.6; font-size: 18px; cursor: pointer; padding: 4px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-inner">
+    <div class="header-title">🦉 Noctowl Master Set</div>
+    <div class="header-sub">Complete collection tracker</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="header-stats">
+      <span class="stats-text" id="stats-text">0 of 37 collected</span>
+      <span class="pct-badge" id="pct-badge">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="filter-tabs">
+  <button class="tab-btn active" onclick="setFilter('all',this)">All (37)</button>
+  <button class="tab-btn" onclick="setFilter('en',this)">🇺🇸 English (20)</button>
+  <button class="tab-btn" onclick="setFilter('jp',this)">🇯🇵 Japanese (17)</button>
+  <button class="tab-btn" onclick="setFilter('needed',this)">Still Needed</button>
+  <button class="tab-btn" onclick="setFilter('collected',this)">Collected</button>
+  <button class="tab-btn" onclick="setFilter('rare',this)">⭐ Rare</button>
+</div>
+
+<div class="search-wrap">
+  <input class="search-input" type="search" placeholder="Search cards..." oninput="handleSearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+</div>
+
+<div id="install-banner" class="install-banner" style="display:none">
+  <span class="install-icon">📱</span>
+  <span class="install-text"><strong>Add to Home Screen</strong> for app-like access — tap Share → Add to Home Screen</span>
+  <span class="install-close" onclick="dismissBanner()">✕</span>
+</div>
+
+<div class="card-list" id="card-list"></div>
+
+<div class="bottom-bar">
+  <button class="bottom-btn" onclick="markAll(true)">Check All Visible</button>
+  <button class="bottom-btn" onclick="markAll(false)">Uncheck All</button>
+  <button class="bottom-btn danger" onclick="resetAll()">Reset</button>
+</div>
+
+<script>
+var cdn = 'https://tcgplayer-cdn.tcgplayer.com/product/';
+var CARDS = [
+  // ENGLISH
+  {id:0,name:'Noctowl',set:'Neo Genesis',num:'42/111',tcg:'https://www.tcgplayer.com/product/87791/pokemon-neo-genesis-noctowl',pid:'87791',special:false,lang:'en'},
+  {id:1,name:'Shining Noctowl',set:'Neo Destiny (Unlimited)',num:'110/105',tcg:'https://www.tcgplayer.com/product/89168/pokemon-neo-destiny-shining-noctowl',pid:'89168',special:true,lang:'en'},
+  {id:2,name:'Shining Noctowl (1st Ed.)',set:'Neo Destiny',num:'110/105',tcg:'https://www.tcgplayer.com/product/89168/pokemon-neo-destiny-shining-noctowl',pid:'89168',special:true,lang:'en'},
+  {id:3,name:'Noctowl',set:'Skyridge',num:'40/144',tcg:'https://www.tcgplayer.com/product/87790/pokemon-skyridge-noctowl',pid:'87790',special:false,lang:'en'},
+  {id:4,name:'Noctowl',set:'EX Unseen Forces',num:'43/115',tcg:'https://www.tcgplayer.com/product/87792/pokemon-unseen-forces-noctowl',pid:'87792',special:false,lang:'en'},
+  {id:5,name:'Noctowl',set:'Diamond & Pearl',num:'34/130',tcg:'https://www.tcgplayer.com/product/87793/pokemon-diamond-and-pearl-noctowl',pid:'87793',special:false,lang:'en'},
+  {id:6,name:'Noctowl',set:'HeartGold & SoulSilver',num:'8/123',tcg:'https://www.tcgplayer.com/product/87794/pokemon-heartgold-soulsilver-noctowl',pid:'87794',special:false,lang:'en'},
+  {id:7,name:'Noctowl',set:'HGSS Black Star Promos',num:'HGSS06',tcg:'https://www.tcgplayer.com/product/87795/pokemon-hgss-promos-noctowl-hgss06',pid:'87795',special:true,lang:'en'},
+  {id:8,name:'Noctowl',set:'Plasma Freeze',num:'92/116',tcg:'https://www.tcgplayer.com/product/87796/pokemon-plasma-freeze-noctowl',pid:'87796',special:false,lang:'en'},
+  {id:9,name:'Noctowl BREAK',set:'XY Black Star Promos',num:'XY136',tcg:'https://www.tcgplayer.com/product/114013/pokemon-xy-promos-noctowl-break',pid:'114013',special:true,lang:'en'},
+  {id:10,name:'Noctowl',set:'BREAKthrough',num:'120/162',tcg:'https://www.tcgplayer.com/product/107239/pokemon-xy-breakthrough-noctowl',pid:'107239',special:false,lang:'en'},
+  {id:11,name:'Noctowl',set:'Burning Shadows',num:'107/147',tcg:'https://www.tcgplayer.com/product/138603/pokemon-sm-burning-shadows-noctowl',pid:'138603',special:false,lang:'en'},
+  {id:12,name:'Noctowl',set:'Unified Minds',num:'166/236',tcg:'https://www.tcgplayer.com/product/195166/pokemon-sm-unified-minds-noctowl',pid:'195166',special:false,lang:'en'},
+  {id:13,name:'Noctowl',set:'Sword & Shield Base Set',num:'144/202',tcg:'https://www.tcgplayer.com/product/208463/pokemon-swsh01-sword-and-shield-base-set-noctowl',pid:'208463',special:false,lang:'en'},
+  {id:14,name:'Noctowl',set:'SWSH Black Star Promos',num:'SWSH027',tcg:'https://www.tcgplayer.com/product/214238/pokemon-swsh-sword-and-shield-promo-cards-noctowl-swsh027',pid:'214238',special:true,lang:'en'},
+  {id:15,name:'Noctowl',set:'Astral Radiance',num:'121/189',tcg:'https://www.tcgplayer.com/product/272356/pokemon-swsh10-astral-radiance-noctowl',pid:'272356',special:false,lang:'en'},
+  {id:16,name:'Noctowl',set:'Temporal Forces',num:'127/162',tcg:'https://www.tcgplayer.com/search/pokemon/temporal-forces?q=noctowl',pid:'548993',special:false,lang:'en'},
+  {id:17,name:'Noctowl',set:'Stellar Crown',num:'115/142',tcg:'https://www.tcgplayer.com/product/567341/pokemon-sv07-stellar-crown-noctowl',pid:'567341',special:false,lang:'en'},
+  {id:18,name:'Noctowl',set:'SVP Black Star Promos',num:'#141',tcg:'https://www.tcgplayer.com/product/578811/pokemon-sv-scarlet-and-violet-promo-cards-noctowl-141',pid:'578811',special:true,lang:'en'},
+  {id:19,name:'Noctowl',set:'Prismatic Evolutions',num:'078/131',tcg:'https://www.tcgplayer.com/product/610433/pokemon-sv-prismatic-evolutions-noctowl',pid:'610433',special:false,lang:'en'},
+  // JAPANESE
+  {id:20,name:'Noctowl',set:'Gold, Silver, to a New World...',num:'—',tcg:'https://www.tcgplayer.com/product/575863/pokemon-japan-gold-silver-to-a-new-world-noctowl',pid:'575863',special:false,lang:'jp'},
+  {id:21,name:'Noctowl',set:'Mysterious Mountains',num:'064/088',ebay:'https://www.ebay.com/itm/389501783851',pid:null,special:false,lang:'jp'},
+  {id:22,name:'Noctowl',set:'HeartGold Collection',num:'059/070',tcg:'https://www.tcgplayer.com/product/608061/pokemon-japan-l1-heartgold-collection-noctowl',pid:'608061',special:false,lang:'jp'},
+  {id:23,name:'Noctowl',set:'L-P Promos',num:'026/L-P',ebay:'https://www.ebay.com/itm/187891740028',pid:null,special:true,lang:'jp'},
+  {id:24,name:'Noctowl',set:'Spiral Force',num:'044/051',ebay:'https://www.ebay.com/itm/147157328945',pid:null,special:false,lang:'jp'},
+  {id:25,name:'Noctowl',set:'Blue Shock',num:'050/059',ebay:'https://www.ebay.com/itm/365850685910',pid:null,special:false,lang:'jp'},
+  {id:26,name:'Noctowl',set:'To Have Seen the Battle Rainbow',num:'044/051',ebay:'https://pokemonsteve.com/en-us/products/noctowl-044051-cgc-10-pristine-2017-have-seenbattle-rainbow-pokemon-japanese-6104639049',pid:null,special:false,lang:'jp'},
+  {id:27,name:'Noctowl',set:'Sky Legend',num:'039/054',tcg:'https://www.tcgplayer.com/product/573572/pokemon-japan-sm10b-sky-legend-noctowl',pid:'573572',special:false,lang:'jp'},
+  {id:28,name:'Noctowl',set:'Shield',num:'048/060',tcg:'https://www.tcgplayer.com/product/568477/pokemon-japan-s1h-shield-noctowl',pid:'568477',special:false,lang:'jp'},
+  {id:29,name:'Noctowl',set:'S-P Promos',num:'026/S-P',ebay:'https://www.ebay.com/itm/234096173767',pid:null,special:true,lang:'jp'},
+  {id:30,name:'Noctowl',set:'Battle Region',num:'056/067',ebay:'https://www.ebay.com/itm/358252369857',pid:null,special:false,lang:'jp'},
+  {id:31,name:'Noctowl',set:'Wild Force',num:'055/071',ebay:'https://www.ebay.com/b/Noctowl-055-071-Sv5k-Wild-Force/2536/bn_7124584059',pid:null,special:false,lang:'jp'},
+  {id:32,name:'Noctowl',set:'Stellar Miracle',num:'077/102',tcg:'https://www.tcgplayer.com/product/567932/pokemon-japan-sv7-stellar-miracle-noctowl-077-102',pid:'567932',special:false,lang:'jp'},
+  {id:33,name:'Noctowl AR',set:'Stellar Miracle',num:'114/102',tcg:'https://www.tcgplayer.com/product/567969/pokemon-japan-sv7-stellar-miracle-noctowl-114-102',pid:'567969',special:true,lang:'jp'},
+  {id:34,name:'Noctowl',set:'Terastal Fest ex',num:'128/187',ebay:'https://www.ebay.com/itm/167792994438',pid:null,special:false,lang:'jp'},
+  {id:35,name:"Morty's Noctowl",set:'Pokémon VS',num:'024/141',tcg:'https://www.tcgplayer.com/product/622638/pokemon-japan-pokemon-vs-mortys-noctowl',pid:'622638',special:true,lang:'jp'},
+  {id:36,name:'Noctowl',set:'Space-Time Creation',num:'—',tcg:'https://www.tcgplayer.com/product/605757/pokemon-japan-dp1-space-time-creation-noctowl',pid:'605757',special:false,lang:'jp'}
+];
+
+var KEY = 'noctowl-pwa-v1';
+var collected = new Set(JSON.parse(localStorage.getItem(KEY)||'[]'));
+var currentFilter = 'all';
+var searchQuery = '';
+
+function save(){ try{localStorage.setItem(KEY,JSON.stringify([...collected]));}catch(e){} }
+
+function updateStats(){
+  var t=CARDS.length, d=collected.size, p=Math.round(d/t*100);
+  document.getElementById('stats-text').textContent=d+' of '+t+' collected';
+  document.getElementById('pct-badge').textContent=p+'%';
+  document.getElementById('prog-fill').style.width=p+'%';
+}
+
+function toggle(id){
+  collected.has(id)?collected.delete(id):collected.add(id);
+  save(); updateStats();
+  var row=document.getElementById('card-'+id);
+  if(row) row.classList.toggle('collected',collected.has(id));
+}
+
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderList();
+}
+
+function handleSearch(q){ searchQuery=q.toLowerCase(); renderList(); }
+
+function getVisible(){
+  return CARDS.filter(function(c){
+    if(currentFilter==='en' && c.lang!=='en') return false;
+    if(currentFilter==='jp' && c.lang!=='jp') return false;
+    if(currentFilter==='needed' && collected.has(c.id)) return false;
+    if(currentFilter==='collected' && !collected.has(c.id)) return false;
+    if(currentFilter==='rare' && !c.special) return false;
+    if(searchQuery && !c.name.toLowerCase().includes(searchQuery) && !c.set.toLowerCase().includes(searchQuery)) return false;
+    return true;
+  });
+}
+
+function renderList(){
+  var visible=getVisible();
+  var list=document.getElementById('card-list');
+  if(!visible.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No cards found</div><div class="empty-sub">Try a different filter or search</div></div>';
+    return;
+  }
+  var html='';
+  var lastLang='';
+  visible.forEach(function(c){
+    if((currentFilter==='all'||currentFilter==='needed'||currentFilter==='collected'||currentFilter==='rare') && c.lang!==lastLang){
+      html+='<div class="section-label">'+(c.lang==='en'?'🇺🇸 English':'🇯🇵 Japanese')+'</div>';
+      lastLang=c.lang;
+    }
+    var isColl=collected.has(c.id);
+    var imgHtml=c.pid
+      ?'<img class="card-img" src="'+cdn+c.pid+'_in_200x200.jpg" loading="lazy" alt="'+c.name+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">'
+      :'';
+    var fallback='<span class="card-no-img" style="display:'+(c.pid?'none':'block')+'">🦉</span>';
+    var tcgLink=c.tcg?'<a class="card-link link-tcg" href="'+c.tcg+'" target="_blank" onclick="event.stopPropagation()">TCGPlayer</a>':'';
+    var ebayLink=c.ebay?'<a class="card-link link-ebay" href="'+c.ebay+'" target="_blank" onclick="event.stopPropagation()">eBay</a>':'';
+    var badges='<div class="card-badges">';
+    if(c.special) badges+='<span class="badge-rare">⭐ Rare</span>';
+    badges+='<span class="badge-lang">'+(c.lang==='en'?'English':'Japanese')+'</span>';
+    badges+='</div>';
+    html+='<div class="card-row'+(isColl?' collected':'')+'" id="card-'+c.id+'" onclick="toggle('+c.id+')">'
+      +'<div class="card-img-wrap">'+imgHtml+fallback+'</div>'
+      +'<div class="card-info"><div class="card-name">'+c.name+'</div><div class="card-set">'+c.set+'</div><div class="card-num">'+c.num+'</div>'+badges+'</div>'
+      +'<div class="card-links">'+tcgLink+ebayLink+'</div>'
+      +'<div class="check-circle"><span class="check-icon">✓</span></div>'
+      +'</div>';
+  });
+  list.innerHTML=html;
+}
+
+function markAll(state){
+  var visible=getVisible();
+  visible.forEach(function(c){ state?collected.add(c.id):collected.delete(c.id); });
+  save(); updateStats(); renderList();
+}
+
+function resetAll(){
+  if(!confirm('Reset all progress? This cannot be undone.')) return;
+  collected.clear(); save(); updateStats(); renderList();
+}
+
+function dismissBanner(){
+  document.getElementById('install-banner').style.display='none';
+  localStorage.setItem('banner-dismissed','1');
+}
+
+// Show install banner on mobile if not dismissed
+var isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+if(isMobile && !localStorage.getItem('banner-dismissed')){
+  document.getElementById('install-banner').style.display='flex';
+}
+
+// Service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(function(){});
+}
+
+renderList();
+updateStats();
+</script>
+</body>
+</html>
